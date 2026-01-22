@@ -84,4 +84,24 @@ public class LoginTest extends BaseTest {
         assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
+
+    @Test
+    @DisplayName("Логин с пустыми полями")
+    @Description("При отправке формы без логина и пароля отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
+    @Story("Неуспешная авторизация")
+    public void testLoginWithEmptyFields() {
+        String expectedErrorSubstring = "required";
+        String expectedLoginUrl = "https://www.saucedemo.com/";
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.submitLoginForm();
+
+        assertTrue(loginPage.isErrorMessageDisplayed(),
+                "Должно отображаться сообщение об ошибке при пустых полях");
+        String errorText = loginPage.getErrorMessage();
+        assertTrue(errorText.contains(expectedErrorSubstring),
+                "Текст ошибки должен содержать '" + expectedErrorSubstring + "' (например, Username is required), получено: " + errorText);
+        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+                "После ошибки пользователь должен оставаться на странице логина");
+    }
 }
