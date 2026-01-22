@@ -36,4 +36,28 @@ public class LoginTest extends BaseTest {
         assertEquals(expectedUrl, productsPage.getCurrentUrl(), 
                 "URL должен соответствовать странице продуктов");
     }
+
+    @Test
+    @DisplayName("Логин с неверным паролем")
+    @Description("При неверном пароле отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
+    @Story("Неуспешная авторизация")
+    public void testLoginWithWrongPassword() {
+        String username = "standard_user";
+        String wrongPassword = "wrong_password";
+        String expectedErrorSubstring = "do not match";
+        String expectedLoginUrl = "https://www.saucedemo.com/";
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.enterUsername(username)
+                .enterPassword(wrongPassword)
+                .submitLoginForm();
+
+        assertTrue(loginPage.isErrorMessageDisplayed(),
+                "Должно отображаться сообщение об ошибке при неверном пароле");
+        String errorText = loginPage.getErrorMessage();
+        assertTrue(errorText.contains(expectedErrorSubstring),
+                "Текст ошибки должен содержать '" + expectedErrorSubstring + "', получено: " + errorText);
+        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+                "После ошибки пользователь должен оставаться на странице логина");
+    }
 }

@@ -51,6 +51,13 @@ public class LoginPage {
         return new ProductsPage(driver);
     }
 
+    public LoginPage submitLoginForm() {
+        log.info("Нажатие кнопки входа (ожидается ошибка)");
+        WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(loginButton));
+        loginBtn.click();
+        return this;
+    }
+
     public ProductsPage login(String username, String password) {
         enterUsername(username);
         enterPassword(password);
