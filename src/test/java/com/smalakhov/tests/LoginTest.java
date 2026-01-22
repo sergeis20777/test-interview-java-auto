@@ -60,4 +60,28 @@ public class LoginTest extends BaseTest {
         assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
+
+    @Test
+    @DisplayName("Логин заблокированного пользователя (locked_out_user)")
+    @Description("Заблокированный пользователь не может войти: отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
+    @Story("Неуспешная авторизация")
+    public void testLoginLockedOutUser() {
+        String username = "locked_out_user";
+        String password = "secret_sauce";
+        String expectedErrorSubstring = "locked out";
+        String expectedLoginUrl = "https://www.saucedemo.com/";
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.enterUsername(username)
+                .enterPassword(password)
+                .submitLoginForm();
+
+        assertTrue(loginPage.isErrorMessageDisplayed(),
+                "Должно отображаться сообщение об ошибке для заблокированного пользователя");
+        String errorText = loginPage.getErrorMessage();
+        assertTrue(errorText.contains(expectedErrorSubstring),
+                "Текст ошибки должен содержать '" + expectedErrorSubstring + "', получено: " + errorText);
+        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+                "После ошибки пользователь должен оставаться на странице логина");
+    }
 }
