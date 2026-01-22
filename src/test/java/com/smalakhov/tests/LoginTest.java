@@ -104,4 +104,24 @@ public class LoginTest extends BaseTest {
         assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
+
+    @Test
+    @DisplayName("Логин пользователем performance_glitch_user")
+    @Description("Проверка корректного перехода на страницу продуктов при логине пользователем с имитацией задержек; страница должна открываться несмотря на возможные задержки (используются явные ожидания)")
+    @Story("Успешная авторизация")
+    public void testLoginPerformanceGlitchUser() {
+        String username = "performance_glitch_user";
+        String password = "secret_sauce";
+        String expectedPageTitle = "Products";
+        String expectedUrl = "https://www.saucedemo.com/inventory.html";
+
+        LoginPage loginPage = new LoginPage(driver);
+        ProductsPage productsPage = loginPage.login(username, password);
+
+        assertTrue(productsPage.isPageLoaded(), "Страница продуктов должна быть загружена несмотря на задержки");
+        assertEquals(expectedPageTitle, productsPage.getPageTitle(),
+                "Заголовок страницы должен быть 'Products'");
+        assertEquals(expectedUrl, productsPage.getCurrentUrl(),
+                "URL должен соответствовать странице продуктов");
+    }
 }
