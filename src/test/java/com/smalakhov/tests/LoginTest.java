@@ -1,6 +1,7 @@
 package com.smalakhov.tests;
 
 import com.smalakhov.base.BaseTest;
+import com.smalakhov.config.TestConfig;
 import com.smalakhov.pages.LoginPage;
 import com.smalakhov.pages.ProductsPage;
 import io.qameta.allure.Description;
@@ -22,18 +23,16 @@ public class LoginTest extends BaseTest {
     @Description("Проверка успешного входа в систему с использованием стандартного пользователя")
     @Story("Успешная авторизация")
     public void testSuccessfulLogin() {
-        String username = "standard_user";
-        String password = "secret_sauce";
-        String expectedPageTitle = "Products";
-        String expectedUrl = "https://www.saucedemo.com/inventory.html";
-
         LoginPage loginPage = new LoginPage(driver);
-        ProductsPage productsPage = loginPage.login(username, password);
+        ProductsPage productsPage = loginPage.login(
+                TestConfig.Users.STANDARD_USER, 
+                TestConfig.Users.DEFAULT_PASSWORD
+        );
 
         assertTrue(productsPage.isPageLoaded(), "Страница продуктов должна быть загружена");
-        assertEquals(expectedPageTitle, productsPage.getPageTitle(), 
+        assertEquals(TestConfig.ExpectedMessages.PRODUCTS_PAGE_TITLE, productsPage.getPageTitle(), 
                 "Заголовок страницы должен быть 'Products'");
-        assertEquals(expectedUrl, productsPage.getCurrentUrl(), 
+        assertEquals(TestConfig.getProductsUrl(), productsPage.getCurrentUrl(),
                 "URL должен соответствовать странице продуктов");
     }
 
@@ -42,22 +41,19 @@ public class LoginTest extends BaseTest {
     @Description("При неверном пароле отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
     @Story("Неуспешная авторизация")
     public void testLoginWithWrongPassword() {
-        String username = "standard_user";
         String wrongPassword = "wrong_password";
-        String expectedErrorSubstring = "do not match";
-        String expectedLoginUrl = "https://www.saucedemo.com/";
 
         LoginPage loginPage = new LoginPage(driver);
-        loginPage.enterUsername(username)
+        loginPage.enterUsername(TestConfig.Users.STANDARD_USER)
                 .enterPassword(wrongPassword)
                 .submitLoginForm();
 
         assertTrue(loginPage.isErrorMessageDisplayed(),
                 "Должно отображаться сообщение об ошибке при неверном пароле");
         String errorText = loginPage.getErrorMessage();
-        assertTrue(errorText.contains(expectedErrorSubstring),
-                "Текст ошибки должен содержать '" + expectedErrorSubstring + "', получено: " + errorText);
-        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+        assertTrue(errorText.contains(TestConfig.ExpectedMessages.ERROR_WRONG_CREDENTIALS),
+                "Текст ошибки должен содержать '" + TestConfig.ExpectedMessages.ERROR_WRONG_CREDENTIALS + "', получено: " + errorText);
+        assertEquals(TestConfig.getBaseUrl(), driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
 
@@ -66,22 +62,17 @@ public class LoginTest extends BaseTest {
     @Description("Заблокированный пользователь не может войти: отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
     @Story("Неуспешная авторизация")
     public void testLoginLockedOutUser() {
-        String username = "locked_out_user";
-        String password = "secret_sauce";
-        String expectedErrorSubstring = "locked out";
-        String expectedLoginUrl = "https://www.saucedemo.com/";
-
         LoginPage loginPage = new LoginPage(driver);
-        loginPage.enterUsername(username)
-                .enterPassword(password)
+        loginPage.enterUsername(TestConfig.Users.LOCKED_OUT_USER)
+                .enterPassword(TestConfig.Users.DEFAULT_PASSWORD)
                 .submitLoginForm();
 
         assertTrue(loginPage.isErrorMessageDisplayed(),
                 "Должно отображаться сообщение об ошибке для заблокированного пользователя");
         String errorText = loginPage.getErrorMessage();
-        assertTrue(errorText.contains(expectedErrorSubstring),
-                "Текст ошибки должен содержать '" + expectedErrorSubstring + "', получено: " + errorText);
-        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+        assertTrue(errorText.contains(TestConfig.ExpectedMessages.ERROR_LOCKED_OUT),
+                "Текст ошибки должен содержать '" + TestConfig.ExpectedMessages.ERROR_LOCKED_OUT + "', получено: " + errorText);
+        assertEquals(TestConfig.getBaseUrl(), driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
 
@@ -90,38 +81,33 @@ public class LoginTest extends BaseTest {
     @Description("При отправке формы без логина и пароля отображается сообщение об ошибке, переход на страницу продуктов не выполняется")
     @Story("Неуспешная авторизация")
     public void testLoginWithEmptyFields() {
-        String expectedErrorSubstring = "required";
-        String expectedLoginUrl = "https://www.saucedemo.com/";
-
         LoginPage loginPage = new LoginPage(driver);
         loginPage.submitLoginForm();
 
         assertTrue(loginPage.isErrorMessageDisplayed(),
                 "Должно отображаться сообщение об ошибке при пустых полях");
         String errorText = loginPage.getErrorMessage();
-        assertTrue(errorText.contains(expectedErrorSubstring),
-                "Текст ошибки должен содержать '" + expectedErrorSubstring + "' (например, Username is required), получено: " + errorText);
-        assertEquals(expectedLoginUrl, driver.getCurrentUrl(),
+        assertTrue(errorText.contains(TestConfig.ExpectedMessages.ERROR_REQUIRED_FIELD),
+                "Текст ошибки должен содержать '" + TestConfig.ExpectedMessages.ERROR_REQUIRED_FIELD + "' (например, Username is required), получено: " + errorText);
+        assertEquals(TestConfig.getBaseUrl(), driver.getCurrentUrl(),
                 "После ошибки пользователь должен оставаться на странице логина");
     }
 
     @Test
     @DisplayName("Логин пользователем performance_glitch_user")
-    @Description("Проверка корректного перехода на страницу продуктов при логине пользователем с имитацией задержек; страница должна открываться несмотря на возможные задержки (используются явные ожидания)")
+    @Description("Проверка корректного перехода на страницу продуктов при логине пользователем с имитацией задержек; страница должна открываться несмотря на возможные задержки")
     @Story("Успешная авторизация")
     public void testLoginPerformanceGlitchUser() {
-        String username = "performance_glitch_user";
-        String password = "secret_sauce";
-        String expectedPageTitle = "Products";
-        String expectedUrl = "https://www.saucedemo.com/inventory.html";
-
         LoginPage loginPage = new LoginPage(driver);
-        ProductsPage productsPage = loginPage.login(username, password);
+        ProductsPage productsPage = loginPage.login(
+                TestConfig.Users.PERFORMANCE_GLITCH_USER, 
+                TestConfig.Users.DEFAULT_PASSWORD
+        );
 
         assertTrue(productsPage.isPageLoaded(), "Страница продуктов должна быть загружена несмотря на задержки");
-        assertEquals(expectedPageTitle, productsPage.getPageTitle(),
+        assertEquals(TestConfig.ExpectedMessages.PRODUCTS_PAGE_TITLE, productsPage.getPageTitle(),
                 "Заголовок страницы должен быть 'Products'");
-        assertEquals(expectedUrl, productsPage.getCurrentUrl(),
+        assertEquals(TestConfig.getProductsUrl(), productsPage.getCurrentUrl(),
                 "URL должен соответствовать странице продуктов");
     }
 }

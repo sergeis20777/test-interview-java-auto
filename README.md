@@ -15,6 +15,31 @@
 2. Убедитесь, что установлены все предварительные требования
 3. Зависимости будут автоматически загружены при первой сборке проекта
 
+## Конфигурация
+
+Все настройки проекта (URL, учетные данные, таймауты) хранятся в файле `src/test/resources/config.properties`.
+
+### Параметры конфигурации
+
+Файл `config.properties` содержит следующие параметры:
+
+**URLs:**
+- `base.url` - базовый URL приложения (по умолчанию: `https://www.saucedemo.com/`)
+- `products.url` - URL страницы продуктов (по умолчанию: `https://www.saucedemo.com/inventory.html`)
+
+**Таймауты:**
+- `timeout.default` - таймаут по умолчанию для ожидания элементов (по умолчанию: `10`)
+- `timeout.pageLoad` - таймаут загрузки страницы (по умолчанию: `30`)
+
+**Настройки браузера:**
+- `browser` - выбор браузера: `chrome`, `yandex`, `firefox`, `edge` (по умолчанию: `yandex`)
+- `headless` - режим headless: `true`/`false` (по умолчанию: `false`)
+
+**Учетные данные:**
+- `user.standard.username` - логин стандартного пользователя (по умолчанию: `standard_user`)
+- `user.lockedOut.username` - логин заблокированного пользователя (по умолчанию: `locked_out_user`)
+- `user.performanceGlitch.username` - логин пользователя с задержками (по умолчанию: `performance_glitch_user`)
+- `user.default.password` - пароль (по умолчанию: `secret_sauce`)
 ## Запуск тестов
 
 ### Запуск всех тестов

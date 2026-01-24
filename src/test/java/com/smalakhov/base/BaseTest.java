@@ -1,5 +1,6 @@
 package com.smalakhov.base;
 
+import com.smalakhov.config.TestConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
@@ -17,27 +18,24 @@ public class BaseTest {
     protected WebDriver driver;
     protected WebDriverWait wait;
 
-    protected static final String BASE_URL = "https://www.saucedemo.com/";
-    protected static final int TIMEOUT_SEC = 10;
-
     @BeforeEach
     void setUp(TestInfo testInfo) {
         String testName = testInfo.getDisplayName();
         log.info("=== Подготовка к тесту: {} ===", testName);
 
-        String browser = System.getProperty("browser", "yandex");
-        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
+        String browser = TestConfig.getDefaultBrowser();
+        boolean headless = TestConfig.isDefaultHeadless();
         log.info("Параметры запуска: браузер={}, headless={}", browser, headless);
 
         driver = DriverFactory.create(browser, headless);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SEC));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(TestConfig.getDefaultTimeout()));
         log.info("Браузер успешно открыт");
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT_SEC));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TestConfig.getDefaultTimeout()));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(TestConfig.getPageLoadTimeout()));
 
-        driver.get(BASE_URL);
-        log.info("Переход на URL: {}", BASE_URL);
+        driver.get(TestConfig.getBaseUrl());
+        log.info("Переход на URL: {}", TestConfig.getBaseUrl());
         log.info("Тест запущен: {}", testName);
     }
 
